@@ -1,15 +1,13 @@
 -- =========================================================
--- SPEED HACK ESPECIAL PARA "STEAL AN EGG" (MOBILE)
+-- PANEL DE VELOCIDAD FUTURISTA (SIN EMOJIS / IMÁGENES)
 -- =========================================================
 
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
-local rootPart = character:WaitForChild("HumanoidRootPart")
 
 local MIN_SPEED = 100
 local MAX_SPEED = 1000
@@ -17,44 +15,28 @@ local currentSpeed = MIN_SPEED
 
 -- Eliminar GUI previa si existe
 local pGui = player:WaitForChild("PlayerGui")
-if pGui:FindFirstChild("StealEggSpeedGUI") then
-    pGui.StealEggSpeedGUI:Destroy()
+if pGui:FindFirstChild("CleanSpeedGUI") then
+    pGui.CleanSpeedGUI:Destroy()
 end
 
 ------------------------------------------------------------
--- SISTEMA DE IMPULSO DIRECTO (FORZADO FÍSICO)
+-- SISTEMA DE VELOCIDAD
 ------------------------------------------------------------
+local function updateSpeed(newSpeed)
+    currentSpeed = math.clamp(math.round(newSpeed), MIN_SPEED, MAX_SPEED)
+    if humanoid and humanoid.Parent then
+        humanoid.WalkSpeed = currentSpeed
+    end
+end
+
 player.CharacterAdded:Connect(function(newCharacter)
     character = newCharacter
     humanoid = character:WaitForChild("Humanoid")
-    rootPart = character:WaitForChild("HumanoidRootPart")
+    humanoid.WalkSpeed = currentSpeed
 end)
-
--- Bucle de renderizado para forzar movimiento en Steal An Egg
-RunService.RenderStepped:Connect(function()
-    if character and humanoid and rootPart and humanoid.Health > 0 then
-        -- Cambiar WalkSpeed estándar por si acaso
-        humanoid.WalkSpeed = currentSpeed
-
-        -- Si el jugador se está moviendo con el joystick o teclas
-        if humanoid.MoveDirection.Magnitude > 0 then
-            local moveDir = humanoid.MoveDirection
-            -- Mantiene la gravedad (Y) e inyecta la velocidad en X y Z
-            rootPart.AssemblyLinearVelocity = Vector3.new(
-                moveDir.X * currentSpeed,
-                rootPart.AssemblyLinearVelocity.Y,
-                moveDir.Z * currentSpeed
-            )
-        end
-    end
-end)
-
-local function updateSpeed(newSpeed)
-    currentSpeed = math.clamp(math.round(newSpeed), MIN_SPEED, MAX_SPEED)
-end
 
 ------------------------------------------------------------
--- FUNCIÓN DRAGGABLE (Móvil y PC)
+-- FUNCIÓN DRAGGABLE (ARRASTRE EN MÓVIL Y PC)
 ------------------------------------------------------------
 local function makeDraggable(guiObject, dragHandle)
     dragHandle = dragHandle or guiObject
@@ -92,35 +74,36 @@ local function makeDraggable(guiObject, dragHandle)
 end
 
 ------------------------------------------------------------
--- INTERFAZ GRÁFICA FUTURISTA
+-- INTERFAZ GRÁFICA FUTURISTA (CON IMÁGENES)
 ------------------------------------------------------------
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "StealEggSpeedGUI"
+screenGui.Name = "CleanSpeedGUI"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = pGui
 
--- 1. BOLITA DEL LOBO (BOTÓN FLOTANTE)
-local wolfBall = Instance.new("TextButton")
-wolfBall.Name = "WolfBall"
-wolfBall.Size = UDim2.new(0, 55, 0, 55)
-wolfBall.Position = UDim2.new(0.05, 0, 0.25, 0)
-wolfBall.BackgroundColor3 = Color3.fromRGB(15, 23, 42)
-wolfBall.BorderSizePixel = 0
-wolfBall.Text = "🐺"
-wolfBall.TextSize = 28
-wolfBall.AutoButtonColor = false
-wolfBall.Parent = screenGui
+-- 1. BOTÓN FLOTANTE CON IMAGEN (REEMPLAZO DE LA BOLITA CON STICKER)
+local toggleBtn = Instance.new("ImageButton")
+toggleBtn.Name = "ToggleImageBtn"
+toggleBtn.Size = UDim2.new(0, 55, 0, 55)
+toggleBtn.Position = UDim2.new(0.05, 0, 0.25, 0)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(15, 23, 42)
+toggleBtn.BorderSizePixel = 0
+-- Puedes cambiar esta ID por cualquier imagen de Roblox (rbxassetid://ID)
+toggleBtn.Image = "rbxassetid://6031097225" -- Icono de rayo/energía en HD
+toggleBtn.ImageColor3 = Color3.fromRGB(56, 189, 248)
+toggleBtn.AutoButtonColor = false
+toggleBtn.Parent = screenGui
 
-local ballCorner = Instance.new("UICorner")
-ballCorner.CornerRadius = UDim.new(1, 0)
-ballCorner.Parent = wolfBall
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(1, 0)
+btnCorner.Parent = toggleBtn
 
-local ballStroke = Instance.new("UIStroke")
-ballStroke.Color = Color3.fromRGB(56, 189, 248)
-ballStroke.Thickness = 2
-ballStroke.Parent = wolfBall
+local btnStroke = Instance.new("UIStroke")
+btnStroke.Color = Color3.fromRGB(56, 189, 248)
+btnStroke.Thickness = 2
+btnStroke.Parent = toggleBtn
 
-makeDraggable(wolfBall)
+makeDraggable(toggleBtn)
 
 -- 2. PANEL PRINCIPAL
 local mainFrame = Instance.new("Frame")
@@ -156,18 +139,27 @@ headerCorner.Parent = header
 
 makeDraggable(mainFrame, header)
 
+-- Icono de la barra superior
+local headerIcon = Instance.new("ImageLabel")
+headerIcon.Size = UDim2.new(0, 20, 0, 20)
+headerIcon.Position = UDim2.new(0, 10, 0.5, -10)
+headerIcon.BackgroundTransparency = 1
+headerIcon.Image = "rbxassetid://6031097225"
+headerIcon.ImageColor3 = Color3.fromRGB(56, 189, 248)
+headerIcon.Parent = header
+
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -20, 1, 0)
-titleLabel.Position = UDim2.new(0, 10, 0, 0)
+titleLabel.Size = UDim2.new(1, -40, 1, 0)
+titleLabel.Position = UDim2.new(0, 36, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "⚡ STEAL AN EGG SPEED"
+titleLabel.Text = "SPEED CONTROLLER"
 titleLabel.TextColor3 = Color3.fromRGB(241, 245, 249)
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextSize = 13
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Parent = header
 
--- Contador numérico de velocidad
+-- Display del valor
 local speedDisplay = Instance.new("TextLabel")
 speedDisplay.Size = UDim2.new(1, 0, 0, 35)
 speedDisplay.Position = UDim2.new(0, 0, 0, 48)
@@ -182,7 +174,7 @@ local unitLabel = Instance.new("TextLabel")
 unitLabel.Size = UDim2.new(1, 0, 0, 15)
 unitLabel.Position = UDim2.new(0, 0, 0, 80)
 unitLabel.BackgroundTransparency = 1
-unitLabel.Text = "VELOCIDAD FORZADA"
+unitLabel.Text = "WALKSPEED VALUE"
 unitLabel.TextColor3 = Color3.fromRGB(148, 163, 184)
 unitLabel.Font = Enum.Font.GothamBold
 unitLabel.TextSize = 9
@@ -291,8 +283,8 @@ end
 createQuickBtn("- 50", UDim2.new(0.075, 0, 0.72, 0), -50)
 createQuickBtn("+ 50", UDim2.new(0.525, 0, 0.72, 0), 50)
 
--- Abrir / Cerrar con la Bolita del Lobo
-wolfBall.Activated:Connect(function()
+-- Abrir / Cerrar panel al presionar el icono flotante
+toggleBtn.Activated:Connect(function()
     mainFrame.Visible = not mainFrame.Visible
 end)
 
