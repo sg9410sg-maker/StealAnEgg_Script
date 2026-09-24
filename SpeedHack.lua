@@ -1,5 +1,5 @@
 -- =========================================================
--- PANEL DE VELOCIDAD FUTURISTA (FORZADO CLIENTE)
+-- SPEED HACK ESPECIAL PARA "STEAL AN EGG" (MOBILE)
 -- =========================================================
 
 local Players = game:GetService("Players")
@@ -14,40 +14,38 @@ local rootPart = character:WaitForChild("HumanoidRootPart")
 local MIN_SPEED = 100
 local MAX_SPEED = 1000
 local currentSpeed = MIN_SPEED
-local speedEnabled = true
 
--- Eliminar versión anterior si ya existe
+-- Eliminar GUI previa si existe
 local pGui = player:WaitForChild("PlayerGui")
-if pGui:FindFirstChild("FuturisticSpeedGUI") then
-    pGui.FuturisticSpeedGUI:Destroy()
+if pGui:FindFirstChild("StealEggSpeedGUI") then
+    pGui.StealEggSpeedGUI:Destroy()
 end
 
 ------------------------------------------------------------
--- BUCLE DE VELOCIDAD FORZADA (Bypass de WalkSpeed)
+-- SISTEMA DE IMPULSO DIRECTO (FORZADO FÍSICO)
 ------------------------------------------------------------
--- Actualizar referencias al morir/reaparecer
 player.CharacterAdded:Connect(function(newCharacter)
     character = newCharacter
     humanoid = character:WaitForChild("Humanoid")
     rootPart = character:WaitForChild("HumanoidRootPart")
 end)
 
--- Este evento se ejecuta en cada frame del juego
-RunService.Heartbeat:Connect(function()
-    if not character or not humanoid or not rootPart or not speedEnabled then return end
-    
-    -- 1. Intentar forzar el WalkSpeed tradicional
-    humanoid.WalkSpeed = currentSpeed
+-- Bucle de renderizado para forzar movimiento en Steal An Egg
+RunService.RenderStepped:Connect(function()
+    if character and humanoid and rootPart and humanoid.Health > 0 then
+        -- Cambiar WalkSpeed estándar por si acaso
+        humanoid.WalkSpeed = currentSpeed
 
-    -- 2. Forzar velocidad física manual si se está moviendo (para juegos con velocidad personalizada)
-    if humanoid.MoveDirection.Magnitude > 0 then
-        local moveDir = humanoid.MoveDirection
-        -- Mantener la gravedad vertical original (Y) y aplicar la velocidad en X y Z
-        rootPart.AssemblyLinearVelocity = Vector3.new(
-            moveDir.X * currentSpeed,
-            rootPart.AssemblyLinearVelocity.Y,
-            moveDir.Z * currentSpeed
-        )
+        -- Si el jugador se está moviendo con el joystick o teclas
+        if humanoid.MoveDirection.Magnitude > 0 then
+            local moveDir = humanoid.MoveDirection
+            -- Mantiene la gravedad (Y) e inyecta la velocidad en X y Z
+            rootPart.AssemblyLinearVelocity = Vector3.new(
+                moveDir.X * currentSpeed,
+                rootPart.AssemblyLinearVelocity.Y,
+                moveDir.Z * currentSpeed
+            )
+        end
     end
 end)
 
@@ -56,7 +54,7 @@ local function updateSpeed(newSpeed)
 end
 
 ------------------------------------------------------------
--- LÓGICA DE ARRASTRE (DRAGGABLE)
+-- FUNCIÓN DRAGGABLE (Móvil y PC)
 ------------------------------------------------------------
 local function makeDraggable(guiObject, dragHandle)
     dragHandle = dragHandle or guiObject
@@ -94,14 +92,14 @@ local function makeDraggable(guiObject, dragHandle)
 end
 
 ------------------------------------------------------------
--- INTERFAZ GRÁFICA (GUI)
+-- INTERFAZ GRÁFICA FUTURISTA
 ------------------------------------------------------------
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "FuturisticSpeedGUI"
+screenGui.Name = "StealEggSpeedGUI"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = pGui
 
--- 1. BOTÓN FLOTANTE (BOLITA DEL LOBO)
+-- 1. BOLITA DEL LOBO (BOTÓN FLOTANTE)
 local wolfBall = Instance.new("TextButton")
 wolfBall.Name = "WolfBall"
 wolfBall.Size = UDim2.new(0, 55, 0, 55)
@@ -144,7 +142,7 @@ frameStroke.Thickness = 1.5
 frameStroke.Transparency = 0.3
 frameStroke.Parent = mainFrame
 
--- Barra de arrastre superior
+-- Barra superior de arrastre
 local header = Instance.new("Frame")
 header.Name = "Header"
 header.Size = UDim2.new(1, 0, 0, 40)
@@ -162,14 +160,14 @@ local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, -20, 1, 0)
 titleLabel.Position = UDim2.new(0, 10, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "⚡ SPEED CONTROLLER"
+titleLabel.Text = "⚡ STEAL AN EGG SPEED"
 titleLabel.TextColor3 = Color3.fromRGB(241, 245, 249)
 titleLabel.Font = Enum.Font.GothamBold
-titleLabel.TextSize = 14
+titleLabel.TextSize = 13
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Parent = header
 
--- Display del valor
+-- Contador numérico de velocidad
 local speedDisplay = Instance.new("TextLabel")
 speedDisplay.Size = UDim2.new(1, 0, 0, 35)
 speedDisplay.Position = UDim2.new(0, 0, 0, 48)
@@ -184,7 +182,7 @@ local unitLabel = Instance.new("TextLabel")
 unitLabel.Size = UDim2.new(1, 0, 0, 15)
 unitLabel.Position = UDim2.new(0, 0, 0, 80)
 unitLabel.BackgroundTransparency = 1
-unitLabel.Text = "STUDS / SECOND"
+unitLabel.Text = "VELOCIDAD FORZADA"
 unitLabel.TextColor3 = Color3.fromRGB(148, 163, 184)
 unitLabel.Font = Enum.Font.GothamBold
 unitLabel.TextSize = 9
@@ -227,7 +225,7 @@ local knobCorner = Instance.new("UICorner")
 knobCorner.CornerRadius = UDim.new(1, 0)
 knobCorner.Parent = sliderKnob
 
--- Controles del Slider
+-- Lógica del Slider
 local isSliding = false
 
 local function setSliderFromSpeed(speed)
