@@ -6,10 +6,12 @@ screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 -- Crear el Frame principal
 local frame = Instance.new("Frame")
 frame.Name = "SpeedFrame"
-frame.Size = UDim2.new(0, 200, 0, 150)
-frame.Position = UDim2.new(0.5, -100, 0.5, -75)
-frame.BackgroundTransparency = 0.5
-frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.Size = UDim2.new(0, 250, 0, 180)
+frame.Position = UDim2.new(0.5, -125, 0.5, -90)
+frame.BackgroundTransparency = 0.8
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BorderSizePixel = 2
+frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
 frame.Parent = screenGui
 
 -- Crear el botón de cerrar
@@ -17,8 +19,9 @@ local closeButton = Instance.new("TextButton")
 closeButton.Name = "CloseButton"
 closeButton.Text = "Cerrar"
 closeButton.Size = UDim2.new(0, 100, 0, 30)
-closeButton.Position = UDim2.new(0.5, -50, 0, 110)
-closeButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+closeButton.Position = UDim2.new(0.5, -50, 0, 140)
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 closeButton.Parent = frame
 
 -- Función para cerrar el panel
@@ -29,27 +32,36 @@ end)
 -- Crear el label y textbox para la velocidad
 local speedLabel = Instance.new("TextLabel")
 speedLabel.Name = "SpeedLabel"
-speedLabel.Text = "Velocidad"
-speedLabel.Size = UDim2.new(0, 100, 0, 20)
-speedLabel.Position = UDim2.new(0.5, -50, 0, 10)
-speedLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+speedLabel.Text = "Velocidad (100-1000)"
+speedLabel.Size = UDim2.new(0, 200, 0, 20)
+speedLabel.Position = UDim2.new(0.5, -100, 0, 10)
+speedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedLabel.TextScaled = true
 speedLabel.Parent = frame
 
 local speedTextBox = Instance.new("TextBox")
 speedTextBox.Name = "SpeedTextBox"
-speedTextBox.Text = "1"
+speedTextBox.Text = "100"
 speedTextBox.Size = UDim2.new(0, 50, 0, 20)
 speedTextBox.Position = UDim2.new(0.5, -25, 0, 35)
-speedTextBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+speedTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+speedTextBox.TextScaled = true
 speedTextBox.Parent = frame
 
 -- Función para actualizar la velocidad del personaje
 speedTextBox.FocusLost:Connect(function()
-    local newSpeed = tonumber(speedTextBox.Text) or 1
+    local newSpeed = tonumber(speedTextBox.Text) or 100
+    if newSpeed < 100 then
+        newSpeed = 100
+    elseif newSpeed > 1000 then
+        newSpeed = 1000
+    end
     local character = game.Players.LocalPlayer.Character
     if character then
         character.Humanoid.WalkSpeed = newSpeed
     end
+    speedTextBox.Text = tostring(newSpeed)
 end)
 
 -- Crear el dragger para mover el panel
@@ -57,6 +69,7 @@ local dragger = Instance.new("TextButton")
 dragger.Name = "Dragger"
 dragger.Size = UDim2.new(1, 0, 0, 20)
 dragger.BackgroundTransparency = 1
+dragger.Text = ""
 dragger.Parent = frame
 
 local dragging
