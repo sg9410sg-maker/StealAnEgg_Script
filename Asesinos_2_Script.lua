@@ -6,8 +6,8 @@ screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 -- Crear el Frame principal
 local frame = Instance.new("Frame")
 frame.Name = "SpeedFrame"
-frame.Size = UDim2.new(0, 250, 0, 180)
-frame.Position = UDim2.new(0.5, -125, 0.5, -90)
+frame.Size = UDim2.new(0, 250, 0, 210)
+frame.Position = UDim2.new(0.5, -125, 0.5, -105)
 frame.BackgroundTransparency = 0.8
 frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 frame.BorderSizePixel = 2
@@ -28,7 +28,7 @@ openButton.Parent = screenGui
 -- Función para abrir el panel
 openButton.MouseButton1Click:Connect(function()
     frame.Visible = true
-    frame.Position = UDim2.new(0.5, -125, 0.5, -90)
+    frame.Position = UDim2.new(0.5, -125, 0.5, -105)
 end)
 
 -- Crear el botón de cerrar
@@ -36,7 +36,7 @@ local closeButton = Instance.new("TextButton")
 closeButton.Name = "CloseButton"
 closeButton.Text = "Cerrar"
 closeButton.Size = UDim2.new(0, 100, 0, 30)
-closeButton.Position = UDim2.new(0.5, -50, 0, 140)
+closeButton.Position = UDim2.new(0.5, -50, 0, 170)
 closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 closeButton.Parent = frame
@@ -44,7 +44,33 @@ closeButton.Parent = frame
 -- Función para cerrar el panel
 closeButton.MouseButton1Click:Connect(function()
     frame.Visible = false
-    frame.Position = UDim2.new(0.5, -125, 0.5, -90)
+    frame.Position = UDim2.new(0.5, -125, 0.5, -105)
+end)
+
+-- Crear el botón de inyección
+local injectButton = Instance.new("TextButton")
+injectButton.Name = "InjectButton"
+injectButton.Text = "Inyectar"
+injectButton.Size = UDim2.new(0, 100, 0, 30)
+injectButton.Position = UDim2.new(0.5, -50, 0, 140)
+injectButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+injectButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+injectButton.Parent = frame
+
+-- Función para inyectar la velocidad
+injectButton.MouseButton1Click:Connect(function()
+    local newSpeed = tonumber(speedTextBox.Text) or 100
+    if newSpeed < 100 then
+        newSpeed = 100
+    elseif newSpeed > 1000 then
+        newSpeed = 1000
+    end
+    local character = game.Players.LocalPlayer.Character
+    if character then
+        if game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name == "Asesinos 2" or game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name == "Steal An Egg" then
+            character.Humanoid.WalkSpeed = newSpeed
+        end
+    end
 end)
 
 -- Crear el label y textbox para la velocidad
@@ -66,21 +92,6 @@ speedTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 speedTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 speedTextBox.TextScaled = true
 speedTextBox.Parent = frame
-
--- Función para actualizar la velocidad del personaje
-speedTextBox.FocusLost:Connect(function()
-    local newSpeed = tonumber(speedTextBox.Text) or 100
-    if newSpeed < 100 then
-        newSpeed = 100
-    elseif newSpeed > 1000 then
-        newSpeed = 1000
-    end
-    local character = game.Players.LocalPlayer.Character
-    if character then
-        character.Humanoid.WalkSpeed = newSpeed
-    end
-    speedTextBox.Text = tostring(newSpeed)
-end)
 
 -- Crear el dragger para mover el panel
 local dragger = Instance.new("TextButton")
